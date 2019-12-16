@@ -205,3 +205,25 @@ class TestChimeraGraph(unittest.TestCase):
     def test_chimera_to_linear(self):
         G = dnx.chimera_to_linear(3, 2, 1, 0, 8, 8, 4)
         self.assertEqual(G, 212)
+
+    def test_coordinate_generator(self):
+        G = dnx.chimera_graph(4, 2, coordinates=True, data=True)        
+        H = dnx.chimera_graph(4, 2, coordinates=False, data=True)
+        self.assertTrue(nx.is_isomorphic(G, H))
+
+        Gnodes = set(G.nodes)
+        Glabels = set(n['linear_index'] for n in G.nodes.values())
+
+        Hnodes = set(H.nodes)
+        Hlabels = set(n['chimera_index'] for n in H.nodes.values())
+
+        self.assertEqual(Gnodes, Hlabels)
+        self.assertEqual(Hnodes, Glabels)
+
+        coords = dnx.chimera_coordinates(2, 1)
+        f = nx.relabel_nodes(g, coords.chimera_to_linear, copy=True)
+        self.assertEqual(set(f.edges), set(h.edges))
+
+        e = nx.relabel_nodes(h, coords.linear_to_chimera, copy=True)
+        self.assertEqual(set(e.edges), set(g.edges))
+
